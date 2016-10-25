@@ -59,65 +59,38 @@ namespace ToDo.Business
 
         public Statistics GetStatistics()
         {
-            DataTable dt = new DataTable();
-            dt.Columns.Add("column1", typeof(DataTable));
-            dt.Columns.Add("column2", typeof(DateTime));
-            dt.Columns.Add("column3", typeof(long));
+            DataTable mainTable = CreateMainStatisticsTable();
 
-            DateTime workingDate =  repo.GetItems().Min(i => i.DueDate);
-            while (workingDate <=  repo.GetItems().Max(i => i.DueDate))
-            {
-                DataRow dr = dt.NewRow();
-                DataTable subTable = new DataTable();
-                subTable.Columns.Add("column1", typeof(long));
-                subTable.Columns.Add("column2", typeof(DateTime));
-                subTable.Columns.Add("column3", typeof(string));
-                var startDate = new DateTime(workingDate.Year, workingDate.Month, workingDate.Day, 0, 0, 0);
-                var endDate = new DateTime(workingDate.Year, workingDate.Month, workingDate.Day, 23, 59, 59);
-                var items =  repo.GetItems().Where(i => i.DueDate >= startDate && i.DueDate <= endDate).ToList();
-                foreach (var item in items)
-                {
-                    DataRow subDr = subTable.NewRow();
-                    subDr[0] = item.Hours;
-                    subDr[1] = item.DueDate;
-                    subDr[2] = item.Owner;
-                    subTable.Rows.Add(subDr);
-                }
-                dr[0] = subTable;
-                dr[1] = new DateTime(workingDate.Year, workingDate.Month, workingDate.Day, 0, 0, 0);
-                dr[2] = ( repo.GetItems().Where(i => i.DueDate >= startDate && i.DueDate <= endDate).ToList()).Sum(i => i.Hours);
-                dt.Rows.Add(dr);
-                workingDate = workingDate.AddDays(1);
-            }
+            BuildStatisticsTableStructure(mainTable);
 
             Statistics returnData = new Statistics();
             List<string> Owners = new List<string>();
             long totalHours = 0;
             returnData.NextMonthStatistic = new System.Collections.Generic.List<DateStatic>();
-            for (int i = 0; i < dt.Rows.Count; i++)
+            for (int i = 0; i < mainTable.Rows.Count; i++)
             {
-                DateTime rowDate = (DateTime)dt.Rows[i][1];
+                DateTime rowDate = (DateTime)mainTable.Rows[i][1];
 
                 if (rowDate > DateTime.Now && rowDate < DateTime.Now.AddMonths(1))
                 {
-                    returnData.NextMonthStatistic.Add(new DateStatic { Date = (DateTime)dt.Rows[i][1], Hours = (long)dt.Rows[i][2] });
+                    returnData.NextMonthStatistic.Add(new DateStatic { Date = (DateTime)mainTable.Rows[i][1], Hours = (long)mainTable.Rows[i][2] });
                 }
 
-                for (int subI = 0; subI < ((DataTable)dt.Rows[i][0]).Rows.Count; subI++)
+                for (int subI = 0; subI < ((DataTable)mainTable.Rows[i][0]).Rows.Count; subI++)
                 {
                     returnData.TotalCount++;
 
-                    if ((long)((DataTable)dt.Rows[i][0]).Rows[subI][0] > 100)
+                    if ((long)((DataTable)mainTable.Rows[i][0]).Rows[subI][0] > 100)
                     {
                         returnData.BigTaskCount++;
                     }
-                    else if ((long)((DataTable)dt.Rows[i][0]).Rows[subI][0] < 25)
+                    else if ((long)((DataTable)mainTable.Rows[i][0]).Rows[subI][0] < 25)
                     {
                         returnData.SmallTaskCount++;
                     }
 
-                    totalHours += (long)((DataTable)dt.Rows[i][0]).Rows[subI][0];
-                    Owners.Add((string)((DataTable)dt.Rows[i][0]).Rows[subI][2]);
+                    totalHours += (long)((DataTable)mainTable.Rows[i][0]).Rows[subI][0];
+                    Owners.Add((string)((DataTable)mainTable.Rows[i][0]).Rows[subI][2]);
                 }
             }
 
@@ -126,6 +99,66 @@ namespace ToDo.Business
             returnData.AvarageHoursPerPerson = totalHours / returnData.PeopleCount;
 
             return returnData;
+        }
+
+        private void BuildStatisticsTableStructure(DataTable mainTable)
+        {
+            var AllItems = repo.GetItems();
+            DateTime workingDate = AllItems.Min(i => i.DueDate);
+            DateTime maxDueDate = AllItems.Max(i => i.DueDate);
+
+            while (workingDate <= maxDueDate)
+            {
+                DataTable subTable = CreateSubStatisticsTable();
+                var startDate = new DateTime(workingDate.Year, workingDate.Month, workingDate.Day, 0, 0, 0);
+                var endDate = new DateTime(workingDate.Year, workingDate.Month, workingDate.Day, 23, 59, 59);
+                var items = AllItems.Where(i => i.DueDate >= startDate && i.DueDate <= endDate).ToList();
+                foreach (var item in items)
+                {
+                    DataRow subDr = CreateSubTableRow(subTable, item);
+                    subTable.Rows.Add(subDr);
+                }
+
+                DataRow dr = CreateMainTableRow(mainTable, workingDate, subTable, items);
+                mainTable.Rows.Add(dr);
+                workingDate = workingDate.AddDays(1);
+            }
+        }
+
+        private static DataRow CreateMainTableRow(DataTable mainTable, DateTime workingDate, DataTable subTable, List<Item> items)
+        {
+            DataRow dr = mainTable.NewRow();
+            dr[0] = subTable;
+            dr[1] = new DateTime(workingDate.Year, workingDate.Month, workingDate.Day, 0, 0, 0);
+            dr[2] = items.Sum(i => i.Hours);
+            return dr;
+        }
+
+        private static DataRow CreateSubTableRow(DataTable subTable, Item item)
+        {
+            DataRow subDr = subTable.NewRow();
+            subDr[0] = item.Hours;
+            subDr[1] = item.DueDate;
+            subDr[2] = item.Owner;
+            return subDr;
+        }
+
+        private static DataTable CreateSubStatisticsTable()
+        {
+            DataTable subTable = new DataTable();
+            subTable.Columns.Add("column1", typeof(long));
+            subTable.Columns.Add("column2", typeof(DateTime));
+            subTable.Columns.Add("column3", typeof(string));
+            return subTable;
+        }
+
+        private static DataTable CreateMainStatisticsTable()
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("column1", typeof(DataTable));
+            dt.Columns.Add("column2", typeof(DateTime));
+            dt.Columns.Add("column3", typeof(long));
+            return dt;
         }
     }
 }
