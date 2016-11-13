@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<layerDiagram dslVersion="1.0.0.0" Id="e7e82c81-52bd-41b7-ab76-83500f485eff" absoluteBounds="0, 0, 11, 8.5" name="ToDoLayerDiagram">
+  <layerModelMoniker Id="546d6e77-c013-4307-9afb-7afdd7a04400" />
+  <nestedChildShapes>
+    <layerShape Id="73a70d63-1ce3-41c4-a87b-d9d0fac60234" absoluteBounds="3.125, 1.25, 2, 0.75" customColor="161, 199, 231">
+      <layerMoniker Id="1e28bdde-9f32-4cb4-b09a-e8f379c99c23" />
+    </layerShape>
+    <layerShape Id="5532b5f4-55f3-4a59-b28a-8cb8c36116e5" absoluteBounds="1.125, 3.125, 2, 0.75" customColor="161, 199, 231">
+      <layerMoniker Id="644e823e-1f91-4d73-ad0f-80fdcd765e2c" />
+    </layerShape>
+    <layerShape Id="be172d34-6b3d-4a85-a051-1d25074319c6" absoluteBounds="3.625, 4.875, 2, 0.75" customColor="161, 199, 231">
+      <layerMoniker Id="e9e05710-e83f-4b0a-8c2e-9992954ead92" />
+    </layerShape>
+  </nestedChildShapes>
+</layerDiagram>

@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<layerModel xmlns:dm0="http://schemas.microsoft.com/VisualStudio/2008/DslTools/Core" xmlns:dm1="http://schemas.microsoft.com/dsltools/SimpleShapesModel" dslVersion="1.0.0.0" Id="546d6e77-c013-4307-9afb-7afdd7a04400" xmlns="http://schemas.microsoft.com/VisualStudio/TeamArchitect/LayerDesigner">
+  <layers>
+    <layer Id="1e28bdde-9f32-4cb4-b09a-e8f379c99c23" name="Presentation" requiredNamespace="ToDo.Presentation" forbiddenNamespace="ToDo.Data" forbiddenNamespaceDependencies="ToDo.Data" />
+    <layer Id="644e823e-1f91-4d73-ad0f-80fdcd765e2c" name="Business" />
+    <layer Id="e9e05710-e83f-4b0a-8c2e-9992954ead92" name="Data" />
+  </layers>
+</layerModel>
